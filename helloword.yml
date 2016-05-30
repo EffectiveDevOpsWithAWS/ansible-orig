@@ -1,4 +1,5 @@
 ---
 - hosts: "{{ target }}"
+  tags: helloworld
   roles:
     - EffectiveDevOps-node-helloworld
