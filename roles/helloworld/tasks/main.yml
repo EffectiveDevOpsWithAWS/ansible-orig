@@ -1,0 +1,24 @@
+---
+# tasks file for EffectiveDevOps-node-helloworld
+- name: Copy application file
+  copy:
+    src: helloworld.js
+    dest: /home/ec2-user/
+    owner: ec2-user
+    group: ec2-user
+    mode: 0644
+
+- name: Copy upstart file
+  become: yes
+  copy:
+    src: helloworld.conf
+    dest: /etc/init/helloworld.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Start Hello World node service
+  become: yes
+  service:
+    name: helloworld
+    state: started
