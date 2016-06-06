@@ -1,5 +1,0 @@
----
-- hosts: "{{ target }}"
-  tags: helloworld
-  roles:
-    - helloworld
