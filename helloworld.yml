@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ target | default('127.0.0.1') }}"
+- hosts: "{{ target | default('localhost') }}"
   become: yes
   roles:
     - HelloWorld
