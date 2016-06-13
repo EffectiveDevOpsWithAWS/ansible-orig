@@ -1,6 +1,5 @@
 ---
 - hosts: "{{ target | default(127.0.0.1) }}"
-  connection: local
   become: yes
   roles:
     - HelloWorld
