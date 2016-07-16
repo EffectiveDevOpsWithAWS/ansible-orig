@@ -1,0 +1,77 @@
+---
+# tasks file for jenkins
+
+# "yum update -y aws-cfn-bootstrap\n",
+
+# "/opt/aws/bin/cfn-init -v ",
+# " --stack ", {
+#   "Ref": "AWS::StackName"
+# },
+# " --resource JenkinsServer ",
+# " --configsets install_all ",
+# " --region ", {
+#   "Ref": "AWS::Region"
+# }, "\n",
+
+# Example action to import a key from a url
+- name: Import Jenkins GPG key
+  rpm_key: 
+    state: present
+    key: http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+
+- name: Add Jenkins repository
+  yum_repository:
+    name: jenkins
+    description: jenkins repository
+    baseurl: http://pkg.jenkins-ci.org/redhat/jenkins.repo
+    enabled: no
+    gpgcheck: yes
+
+- name: Install Jenkins
+  yum:
+    name: jenkins
+    enablerepo: jenkins
+    state: present
+
+- name: Start Jenkins
+  service:
+    name: jenkins
+    enabled: yes
+    state: started
+
+- name: Wait until Jenkins is available
+  shell: curl --head --silent http://localhost:8080/cli/
+    register: result
+    until: result.stdout.find("200 OK") != -1
+    retries: 60
+    delay: 5
+
+
+- name: Install Jenkins plugin
+  ui:
+    url: http://localhost:8080/pluginManager/installNecessaryPlugins
+    method: POST
+    body: "<jenkins><install plugin=\"{{ item }}\" /></jenkins>"
+    status_code: 200
+    HEADER_Content-Type: "text/xml"
+  with_items:
+    - multiple-scms
+    - github-api
+    - scm-api
+    - git-client
+    - github
+    - git
+    - codedeploy
+
+# - name: Start Jenkins
+#   service:
+#     name: jenkins
+#     state: restarted
+
+# - name: Wait until Jenkins is available
+#   shell: curl --head --silent http://localhost:8080/cli/
+#     register: result
+#     until: result.stdout.find("200 OK") != -1
+#     retries: 60
+#     delay: 5
+
