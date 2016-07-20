@@ -1,19 +1,4 @@
 ---
-# tasks file for jenkins
-
-# "yum update -y aws-cfn-bootstrap\n",
-
-# "/opt/aws/bin/cfn-init -v ",
-# " --stack ", {
-#   "Ref": "AWS::StackName"
-# },
-# " --resource JenkinsServer ",
-# " --configsets install_all ",
-# " --region ", {
-#   "Ref": "AWS::Region"
-# }, "\n",
-
-# Example action to import a key from a url
 - name: Import Jenkins GPG key
   rpm_key: 
     state: present
@@ -23,7 +8,7 @@
   yum_repository:
     name: jenkins
     description: jenkins repository
-    baseurl: http://pkg.jenkins-ci.org/redhat/jenkins.repo
+    baseurl: http://pkg.jenkins.io/redhat
     enabled: no
     gpgcheck: yes
 
@@ -33,45 +18,42 @@
     enablerepo: jenkins
     state: present
 
+# - name: force permissions on secrets directory
+#   file:
+#     path: /var/lib/jenkins/secrets
+#     owner: jenkins
+#     group: jenkins
+#     mode: 0755
+#     state: directory
+
+# - name: force permissions on secrets directory
+#   file:
+#     path: /var/lib/jenkins/secrets/initialAdminPassword
+#     owner: jenkins
+#     group: jenkins
+#     mode: 0644
+#     state: touch
+
 - name: Start Jenkins
   service:
     name: jenkins
     enabled: yes
     state: started
 
-- name: Wait until Jenkins is available
-  shell: curl --head --silent http://localhost:8080/cli/
-    register: result
-    until: result.stdout.find("200 OK") != -1
-    retries: 60
-    delay: 5
-
-
-- name: Install Jenkins plugin
-  ui:
-    url: http://localhost:8080/pluginManager/installNecessaryPlugins
-    method: POST
-    body: "<jenkins><install plugin=\"{{ item }}\" /></jenkins>"
-    status_code: 200
-    HEADER_Content-Type: "text/xml"
-  with_items:
-    - multiple-scms
-    - github-api
-    - scm-api
-    - git-client
-    - github
-    - git
-    - codedeploy
-
-# - name: Start Jenkins
-#   service:
-#     name: jenkins
-#     state: restarted
-
 # - name: Wait until Jenkins is available
-#   shell: curl --head --silent http://localhost:8080/cli/
-#     register: result
-#     until: result.stdout.find("200 OK") != -1
-#     retries: 60
-#     delay: 5
+#   shell: curl --head --silent --user \
+#     admin:{{ lookup('password', '/var/lib/jenkins/secrets/initialAdminPassword') }} \
+#     http://localhost:8080/cli/
+#   register: result
+#   until: result.stdout.find("200 OK") != -1
+#   retries: 60
+#   delay: 5
 
+# - name: Get the jenkins-cli jarfile from the Jenkins server.
+#   get_url:
+#     url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+#     dest: "/usr/lib/jenkins/"
+#   register: jarfile_get
+#   until: "'OK' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+#   retries: 5
+#   delay: 10
