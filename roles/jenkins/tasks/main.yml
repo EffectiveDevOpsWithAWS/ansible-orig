@@ -1,0 +1,59 @@
+---
+- name: Import Jenkins GPG key
+  rpm_key: 
+    state: present
+    key: http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+
+- name: Add Jenkins repository
+  yum_repository:
+    name: jenkins
+    description: jenkins repository
+    baseurl: http://pkg.jenkins.io/redhat
+    enabled: no
+    gpgcheck: yes
+
+- name: Install Jenkins
+  yum:
+    name: jenkins
+    enablerepo: jenkins
+    state: present
+
+# - name: force permissions on secrets directory
+#   file:
+#     path: /var/lib/jenkins/secrets
+#     owner: jenkins
+#     group: jenkins
+#     mode: 0755
+#     state: directory
+
+# - name: force permissions on secrets directory
+#   file:
+#     path: /var/lib/jenkins/secrets/initialAdminPassword
+#     owner: jenkins
+#     group: jenkins
+#     mode: 0644
+#     state: touch
+
+- name: Start Jenkins
+  service:
+    name: jenkins
+    enabled: yes
+    state: started
+
+# - name: Wait until Jenkins is available
+#   shell: curl --head --silent --user \
+#     admin:{{ lookup('password', '/var/lib/jenkins/secrets/initialAdminPassword') }} \
+#     http://localhost:8080/cli/
+#   register: result
+#   until: result.stdout.find("200 OK") != -1
+#   retries: 60
+#   delay: 5
+
+# - name: Get the jenkins-cli jarfile from the Jenkins server.
+#   get_url:
+#     url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+#     dest: "/usr/lib/jenkins/"
+#   register: jarfile_get
+#   until: "'OK' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+#   retries: 5
+#   delay: 10
