@@ -1,0 +1,6 @@
+---
+# tasks file for ecsserver
+- ecs_service:
+    name: default
+    state: present
+    cluster: staging
