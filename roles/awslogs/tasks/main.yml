@@ -41,7 +41,7 @@
     - { option: log_stream_name, value: "{instance_id}" }
     - { option: initial_position, value: "start_of_file" }
     - { option: buffer_duration, value: "5000" }
-    - { option: datetime_format, value: "{{ datetime_format|default(%b %d %H:%M:%S) }}" }
+    - { option: datetime_format, value: "{{ datetime_format | default('%b %d %H:%M:%S') }}" }
   notify: restart awslogs
 
 - name: start awslogs and enable it
