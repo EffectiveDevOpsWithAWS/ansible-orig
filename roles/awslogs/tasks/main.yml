@@ -6,28 +6,11 @@
     name: awslogs
     state: present
 
-- name: configre awslogs
-  ini_file:
-    path: /etc/awslogs/awslogs.conf
-    section: general
-    option: state_file
-    value: /var/lib/awslogs/agent-state
+- name: copy global configuration
+  copy:
+    src: awslogs.conf
+    dest: /etc/awslogs
   notify: restart awslogs
-
-# - name: copy global configuration
-#   copy:
-#     src: awslogs.conf
-#     dest: /etc/awslogs
-#   notify: restart awslogs
-
-# - name: copy custom configuration
-#   copy:
-#     src: "config/{{ item }}"
-#     dest: /etc/awslogs/config/"{{ item }}"
-#   notify: restart awslogs
-#   with_items: config
-#   tags: awslogs_config
-
 
 - name: configre awslogs to collect {{ file }}
   ini_file:
